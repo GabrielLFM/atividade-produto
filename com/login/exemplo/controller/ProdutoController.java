@@ -15,11 +15,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.login.exemplo.dto.ProdutoRequestDTO;
+import com.login.exemplo.dto.ProdutoResponseDTO;
 import com.login.exemplo.entity.Produto;
 import com.login.exemplo.repositories.ProdutoRepository;
 
+import jakarta.validation.Valid;
+
 @RestController
-@RequestMapping("produto")
+@RequestMapping("/produto")
 public class ProdutoController {
 
 	@Autowired
@@ -31,20 +35,21 @@ public class ProdutoController {
 	}
 	
 	@PostMapping(value = "/cadastrar")
-	public ResponseEntity<?> saveUser (@RequestBody Produto prod){
+	public ResponseEntity<?> saveUser (@Valid @RequestBody ProdutoRequestDTO prod){
 		Produto produto = new Produto(prod.getNome(), prod.getPreco(), prod.getQuantidade());
 		produtoRepository.save(produto);
 		return ResponseEntity.ok("O usuário foi cadastrado com sucesso!");
 	}
 	
-	
+
 	@GetMapping(value = "buscar")
-	public List<Produto>ListarProduto1(){
+	public ResponseEntity<?> ListarProduto1(){
 		List<Produto> listaDeProdutos = produtoRepository.findAll();
-		return listaDeProdutos;
+		List<ProdutoResponseDTO> listaDTO = listaDeProdutos.stream().map(prod -> new ProdutoResponseDTO(prod)).toList();
+		return ResponseEntity.ok(listaDTO);	
 	}
 	
-	@GetMapping(value = "buscar2")
+	@GetMapping("/{id}")
 	public List<Produto> listarProduto(){
 		return produtoRepository.findAll();
 	}
